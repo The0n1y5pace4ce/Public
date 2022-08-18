@@ -1,28 +1,18 @@
-const { SlashCommandBuilder, ChatInputCommandInteraction, CommandInteraction, PermissionFlagsBits } = require('discord.js')
-const request = require('superagent')
+const { SlashCommandBuilder, ChatInputCommandInteraction } = require('discord.js');
+const axios = require('axios').default;
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName('advice')
-    .setDescription('Get the perfect bit of life advice'),
+        .setName('advice')
+        .setDescription('Get the perfect bit of life advice'),
     /**
      * @param {ChatInputCommandInteraction} interaction
      */
     execute(interaction) {
-        request
-            .get('http://api.adviceslip.com/advice')
-            .end((err, res) => {
-                if (!err && res.status === 200) {
-                    try {
-                        JSON.parse(res.text)
-                    } catch (e) {
-                        return message.reply(', an api error occurred.');
-                    }
-                    const advice = JSON.parse(res.text)
-                    interaction.reply(advice.slip.advice)
-                } else {
-                console.error(`REST call failed: ${err}, status code: ${res.status}`)
-                }
-            });
+        axios.get("https://api.adviceslip.com/advice").then((response) => {
+            interaction.reply({ content: response.data.slip.advice });
+        }).catch(() => {
+            interaction.reply({ content: "An error occurred" });
+        });
     }
 }
